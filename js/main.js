@@ -8,15 +8,24 @@ game.Mystate.boot = {
         game.load.image("loading", "assets/preloader.gif");
         if(!game.device.desktop){
             game.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
+            // document.getElementById("ceshi").style.cssText = "width: 100%;height: 100%;background: yellow;"
+        }else{
+            window.onload = function(){
+                // document.getElementById("ceshi").style.cssText = "background:yellow;top:50%;left:50%;transform: translate(-50%,-50%);width:"+game.width+"px;height:"+game.height+"px;";
+                // var canvas = document.getElementsByTagName("canvas");
+                // console.log(canvas[0].style.margin);
+            }
         }
         //水平垂直居中
-        game.scale.pageAlignHorizontally = true;
+        // game.scale.pageAlignHorizontally = true;
         game.scale.pageAlignVertically = true;
     },
     create: function(){
         game.state.start("load");
     }
 }
+
+
 
 //场景二：资源加载场景
 game.Mystate.load = {
@@ -93,6 +102,7 @@ var pipeUp;
 var lastScale = 0;
 game.Mystate.play = {
     create: function(){
+        this.playData = {};
         game.physics.startSystem(Phaser.Physics.ARCADE);//开启对应物理引擎
         //背景
         bg = game.add.tileSprite(0, 0, game.width, game.height, "background");
@@ -156,7 +166,7 @@ game.Mystate.play = {
         var getReady = game.add.image(game.width/2, 90, "ready_text");
         getReady.anchor.set(0.5);
 
-    },
+    },//create end
     update: function(){
         //碰撞检测
         game.physics.arcade.collide(bird, ground, this.overlapHandler, null, this);
@@ -263,10 +273,29 @@ game.Mystate.play = {
             jifen.anchor.set(0.5);
 
             //最大分数
-            if(this.score >= (this.maxScore ? lastScale : 0)){
-                this.maxScore = this.score;
-                lastScale = this.score;
+            // if(this.score >= (this.maxScore ? lastScale : 0)){
+            //     this.maxScore = this.score;
+            //     lastScale = this.score;
+            //     //本地存储
+            //     this.maxBendi = localStorage.setItem("maxScore", this.maxScore);
+            //     // console.log(localStorage.getItem("maxScore"))
+            // }
+
+            if(typeof(Storage)!=="undefined"){  
+                console.log("yes"); 
+                var max = JSON.parse(localStorage.getItem("playData")) ? JSON.parse(localStorage.getItem("playData")).maxScore : 0;
+                this.maxScore = max;
+                if(this.score > this.maxScore){
+                    localStorage.setItem("playData", JSON.stringify({"maxScore":this.score}));
+                    this.maxScore = JSON.parse(localStorage.getItem("playData")).maxScore;
+                    
+                }
+            }else{  
+                console.log("no");  
             }
+            
+            
+
 
             var style = { font: 'bold 20pt Arial', fill: 'white', align: 'left', wordWrap: true, wordWrapWidth: 450 };
             var scales = game.add.text(game.world.centerX +70, 142, this.score, style);
